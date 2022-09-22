@@ -9,7 +9,7 @@ public class TaskDependency{
 
     private TaskNode source;
     private TaskNode target;
-    private long duration;
+    private final long duration;
 
     public TaskDependency(Map<String, Attribute> stringAttributeMap) {
         super();
@@ -22,6 +22,14 @@ public class TaskDependency{
 
     public void setTarget(TaskNode target) {
         this.target = target;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public String toDot(){
+        return source.getName()+"->"+target.getName()+" [Weight="+duration+"]";
     }
 
     @Override
