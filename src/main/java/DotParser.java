@@ -1,28 +1,32 @@
-import org.jgrapht.*;
-import org.jgrapht.graph.*;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.nio.dot.DOTImporter;
 
 import java.io.FileReader;
 import java.io.IOException;
 
 public class DotParser {
-    private static final String DOT_FILE = "./test1.dot";
+    private static final String DOT_FILE = "./test.dot";
 
     public static void main(String[] args) throws IOException {
-        parseFromDot();
+        System.out.println(parseFromDot(DOT_FILE));
     }
 
-    public static void parseFromDot() throws IOException {
-        FileReader fr = new FileReader(DOT_FILE);
-        DOTImporter<TaskNode, DefaultWeightedEdge> importer = new DOTImporter<>();
-        Graph<TaskNode, DefaultWeightedEdge> g = new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
-
-        System.out.println(g);
+    public static Graph<TaskNode, TaskDependency> parseFromDot(String dotFile) throws IOException {
+        FileReader fr = new FileReader(dotFile);
+        DOTImporter<TaskNode, TaskDependency> importer = new DOTImporter<>();
+        Graph<TaskNode, TaskDependency> g = new DefaultDirectedGraph<>(TaskDependency.class);
 
         importer.setVertexWithAttributesFactory(TaskNode::new);
+        importer.setEdgeWithAttributesFactory(TaskDependency::new);
         importer.importGraph(g, fr);
-        System.out.println(g);
+
+        /* It's ugly but this is the only way I can come up with to retrieve source, target and the weight of the edge
+         at the same time */
+        g.edgeSet().forEach(e -> e.setSource(g.getEdgeSource(e)));
+        g.edgeSet().forEach(e -> e.setTarget(g.getEdgeTarget(e)));
 
         fr.close();
+        return g;
     }
 }
